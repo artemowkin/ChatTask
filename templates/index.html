@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href="{{ url_for('static', path='/css/base.css') }}" rel="stylesheet">
+        <title>Chat</title>
+    </head>
+    <body>
+        <main>
+            <div class="wrapper">
+                <h1>Chat</h1>
+                <section id='messages'>
+                </section>
+                <form action="" onsubmit="sendMessage(event)">
+                    <input type="text" id="messageText" autocomplete="off" placeholder="Input your text here...">
+                    <button>Send</button>
+                </form>
+            </div>
+        </main>
+
+        <script>
+            let ws = new WebSocket("ws://localhost:8000/ws");
+
+            ws.onmessage = function(event) {
+                let jsonData = JSON.parse(event.data);
+                let messages = document.getElementById('messages');
+                let message = document.createElement('div');
+                message.innerHTML = `<h3>msgid: ${jsonData.order}</h3><p>${jsonData.message}</p>`
+                messages.appendChild(message);
+            };
+
+            function sendMessage(event) {
+                let input = document.getElementById("messageText");
+                let sendingData = {
+                    message: input.value
+                };
+                ws.send(JSON.stringify(sendingData));
+                input.value = '';
+                event.preventDefault();
+            }
+        </script>
+    </body>
+</html>
